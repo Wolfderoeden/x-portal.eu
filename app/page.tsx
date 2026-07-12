@@ -1,24 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 
 export default function Home() {
   return (
     <main className="landing-shell">
-      <header className="site-header" aria-label="Primary navigation">
-        <Link href="/" className="brand-mark" aria-label="XPORTAL home">
-          <Image
-            src="/xportal-logo.jpg"
-            alt="XPORTAL symbol"
-            width={52}
-            height={52}
-            priority
-          />
-        </Link>
-        <Link className="admin-link" href="/admin">
-          Admin
-        </Link>
-      </header>
-
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
           <p className="eyebrow">XPORTAL · PRIVATE ACCESS</p>
