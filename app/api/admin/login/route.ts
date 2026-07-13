@@ -11,14 +11,23 @@ export async function POST(request: Request) {
   const session = adminSessionToken();
 
   if (!session || !process.env.ADMIN_PASSWORD) {
-    return NextResponse.redirect(new URL("/admin/login?error=config", request.url), 303);
+    return new NextResponse(null, {
+      status: 303,
+      headers: { Location: "/admin/login?error=config" },
+    });
   }
 
   if (!validateAdminPassword(password)) {
-    return NextResponse.redirect(new URL("/admin/login?error=invalid", request.url), 303);
+    return new NextResponse(null, {
+      status: 303,
+      headers: { Location: "/admin/login?error=invalid" },
+    });
   }
 
-  const response = NextResponse.redirect(new URL("/admin", request.url), 303);
+  const response = new NextResponse(null, {
+    status: 303,
+    headers: { Location: "/admin" },
+  });
   response.cookies.set(ADMIN_COOKIE, session, {
     httpOnly: true,
     secure: true,
