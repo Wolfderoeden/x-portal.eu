@@ -14,30 +14,31 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://x-portal.eu"),
-  title: "XPORTAL — Coming Soon",
+  title: "XPORTAL — The Private Gateway to Cardano DeFi",
   description:
-    "XPORTAL is coming soon. Join the whitelist for early access.",
+    "Join the XPORTAL founding whitelist for early access to a focused Cardano DeFi experience.",
   icons: {
     icon: "/xportal-logo.jpg",
     shortcut: "/xportal-logo.jpg",
   },
   openGraph: {
-    title: "XPORTAL — Coming Soon",
-    description: "The next portal opens soon. Join the whitelist.",
+    title: "XPORTAL — Cardano DeFi, Before the Crowd",
+    description:
+      "Join the founding whitelist for launch intelligence, early product access and priority onboarding.",
     type: "website",
     images: [
       {
         url: "/og.png",
-        width: 1732,
-        height: 909,
-        alt: "XPORTAL — The next portal opens soon",
+        width: 1536,
+        height: 1024,
+        alt: "XPORTAL — The private gateway to Cardano DeFi",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "XPORTAL — Coming Soon",
-    description: "The next portal opens soon. Join the whitelist.",
+    title: "XPORTAL — Cardano DeFi, Before the Crowd",
+    description: "Join the founding XPORTAL whitelist.",
     images: ["/og.png"],
   },
 };
