@@ -1,0 +1,13 @@
+[build]
+command = "pnpm build"
+publish = ".next"
+
+[build.environment]
+NODE_VERSION = "22.14.0"
+PNPM_VERSION = "11.7.0"
+
+[[headers]]
+for = "/admin/*"
+[headers.values]
+X-Robots-Tag = "noindex, nofollow"
+Cache-Control = "no-store"

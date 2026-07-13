@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { requireChatGPTUser } from "../chatgpt-auth";
-import { listWhitelistEntries } from "../../db/whitelist";
+import { requireAdmin } from "../../lib/admin-auth";
+import { listWhitelistEntries } from "../../lib/whitelist";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ function formatDate(value: string) {
 }
 
 export default async function AdminPage() {
-  const user = await requireChatGPTUser("/admin");
+  await requireAdmin();
   const entries = await listWhitelistEntries();
 
   return (
@@ -25,8 +25,10 @@ export default async function AdminPage() {
           <span>XPORTAL / ADMIN</span>
         </Link>
         <div className="admin-user">
-          <span>{user.email}</span>
-          <a href="/signout-with-chatgpt?return_to=/">Sign out</a>
+          <span>Protected session</span>
+          <form action="/api/admin/logout" method="post">
+            <button type="submit" className="admin-signout">Sign out</button>
+          </form>
         </div>
       </header>
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addWhitelistEntry } from "../../../db/whitelist";
+import { addWhitelistEntry } from "../../../lib/whitelist";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
