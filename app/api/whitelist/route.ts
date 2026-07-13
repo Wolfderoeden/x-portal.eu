@@ -3,8 +3,11 @@ import { addWhitelistEntry } from "../../../lib/whitelist";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function redirectTo(request: Request, path: string) {
-  return NextResponse.redirect(new URL(path, request.url), 303);
+function redirectTo(path: string) {
+  return new NextResponse(null, {
+    status: 303,
+    headers: { Location: path },
+  });
 }
 
 export async function POST(request: Request) {
@@ -16,7 +19,7 @@ export async function POST(request: Request) {
     const consent = formData.get("consent") === "yes";
     const website = String(formData.get("website") ?? "").trim();
 
-    if (website) return redirectTo(request, "/?joined=1#whitelist");
+    if (website) return redirectTo("/?joined=1#whitelist");
 
     if (
       fullName.length < 2 ||
@@ -27,12 +30,12 @@ export async function POST(request: Request) {
       country.length > 80 ||
       !consent
     ) {
-      return redirectTo(request, "/?error=1#whitelist");
+      return redirectTo("/?error=1#whitelist");
     }
 
     await addWhitelistEntry({ fullName, email, country });
-    return redirectTo(request, "/?joined=1#whitelist");
+    return redirectTo("/?joined=1#whitelist");
   } catch {
-    return redirectTo(request, "/?error=1#whitelist");
+    return redirectTo("/?error=1#whitelist");
   }
 }
