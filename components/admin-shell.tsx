@@ -24,7 +24,7 @@ export default function AdminShell({
           <Link href="/admin/compliance">Compliance</Link>
         </nav>
         <div className="admin-user">
-          <span>{session.role} / {session.mfa ? "MFA" : "password only"}</span>
+          <span>{session.role} / password protected</span>
           <form action="/api/admin/logout" method="post">
             <button type="submit" className="admin-signout">Sign out</button>
           </form>

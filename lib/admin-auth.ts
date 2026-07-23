@@ -1,7 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import * as OTPAuth from "otpauth";
 import type { AdminRole } from "./domain";
 
 export const ADMIN_COOKIE = "xportal_admin_session";
@@ -10,7 +9,6 @@ const SESSION_SECONDS = 60 * 60 * 8;
 export type AdminSession = {
   sub: string;
   role: AdminRole;
-  mfa: boolean;
   exp: number;
 };
 
@@ -31,12 +29,11 @@ function signature(payload: string) {
   return createHmac("sha256", signingSecret()).update(payload).digest("base64url");
 }
 
-export function createAdminSession(role: AdminRole = "owner", mfa = false) {
+export function createAdminSession(role: AdminRole = "owner") {
   if (!signingSecret()) return null;
   const payload: AdminSession = {
     sub: "environment-admin",
     role,
-    mfa,
     exp: Math.floor(Date.now() / 1000) + SESSION_SECONDS,
   };
   const encoded = Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -66,28 +63,6 @@ export function parseAdminSession(token: string): AdminSession | null {
 export function validateAdminPassword(password: string) {
   const expected = process.env.ADMIN_PASSWORD;
   return Boolean(expected && password && safeEqual(password, expected));
-}
-
-export function isMfaConfigured() {
-  return Boolean(process.env.ADMIN_TOTP_SECRET);
-}
-
-export function validateTotp(code: string) {
-  const secret = process.env.ADMIN_TOTP_SECRET;
-  if (!secret) return false;
-  try {
-    const totp = new OTPAuth.TOTP({
-      issuer: "XPORTAL",
-      label: "Admin",
-      algorithm: "SHA1",
-      digits: 6,
-      period: 30,
-      secret: OTPAuth.Secret.fromBase32(secret),
-    });
-    return totp.validate({ token: code.replace(/\s/g, ""), window: 1 }) !== null;
-  } catch {
-    return false;
-  }
 }
 
 export async function getAdminSession() {

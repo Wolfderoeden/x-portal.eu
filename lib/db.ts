@@ -97,16 +97,14 @@ export async function getPropertyById(id: string): Promise<Property | null> {
 
 export async function dashboardCounts() {
   const db = getDatabase();
-  const [properties, reservations, openPayments, compliance] = await Promise.all([
+  const [properties, reservations, compliance] = await Promise.all([
     db.sql`SELECT COUNT(*)::int AS count FROM properties`,
     db.sql`SELECT COUNT(*)::int AS count FROM reservations`,
-    db.sql`SELECT COUNT(*)::int AS count FROM payment_intents WHERE status IN ('created', 'submitted')`,
     db.sql`SELECT COUNT(*)::int AS count FROM compliance_checks WHERE status <> 'approved'`,
   ]);
   return {
     properties: Number(properties[0]?.count ?? 0),
     reservations: Number(reservations[0]?.count ?? 0),
-    openPayments: Number(openPayments[0]?.count ?? 0),
     compliance: Number(compliance[0]?.count ?? 0),
   };
 }

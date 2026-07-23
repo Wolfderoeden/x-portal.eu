@@ -6,9 +6,7 @@ import { writeAuditEvent } from "../../../../lib/db";
 
 const actionSchema = z.object({
   reservationId: z.string().uuid(),
-  action: z.enum(["approve", "cancel", "create-intent"]),
-  adaEurRate: z.coerce.number().positive().optional(),
-  rateSource: z.string().max(240).optional(),
+  action: z.enum(["approve", "cancel"]),
 });
 
 function redirectTo(path: string) {
@@ -24,7 +22,7 @@ export async function POST(request: Request) {
 
   const db = getDatabase();
   const rows = await db.sql`
-    SELECT r.*, p.deposit_eur_cents
+    SELECT r.*
     FROM reservations r JOIN properties p ON p.id = r.property_id
     WHERE r.id = ${parsed.data.reservationId}
     LIMIT 1
@@ -41,39 +39,6 @@ export async function POST(request: Request) {
   } else if (parsed.data.action === "cancel") {
     await db.sql`
       UPDATE reservations SET status = 'cancelled', updated_at = NOW()
-      WHERE id = ${parsed.data.reservationId}
-    `;
-  } else {
-    const recipient = process.env.CARDANO_PREPROD_ADDRESS ?? "";
-    const rate = parsed.data.adaEurRate;
-    const rateSource = parsed.data.rateSource?.trim() ?? "";
-    if (
-      reservation.status !== "approved" ||
-      !recipient.startsWith("addr_test1") ||
-      !rate ||
-      !rateSource
-    ) {
-      return redirectTo("/admin/reservations?error=payment-config");
-    }
-    const lovelace = Math.round((Number(reservation.deposit_eur_cents) / 100 / rate) * 1_000_000);
-    const now = new Date();
-    const expires = new Date(now.getTime() + 15 * 60 * 1000);
-    await db.sql`
-      UPDATE payment_intents
-      SET status = 'expired', updated_at = NOW()
-      WHERE reservation_id = ${parsed.data.reservationId} AND status = 'created'
-    `;
-    await db.sql`
-      INSERT INTO payment_intents (
-        reservation_id, recipient_address, eur_amount_cents, ada_eur_rate,
-        rate_source, lovelace_amount, quote_timestamp, expires_at
-      ) VALUES (
-        ${parsed.data.reservationId}, ${recipient}, ${Number(reservation.deposit_eur_cents)},
-        ${rate}, ${rateSource}, ${lovelace}, ${now.toISOString()}, ${expires.toISOString()}
-      )
-    `;
-    await db.sql`
-      UPDATE reservations SET status = 'payment-pending', updated_at = NOW()
       WHERE id = ${parsed.data.reservationId}
     `;
   }

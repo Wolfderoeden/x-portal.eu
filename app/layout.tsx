@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://x-portal.eu"),
-  title: "XPORTAL — Verified Commercial Property on Cardano",
+  title: "XPORTAL — Commercial Property Intelligence",
   description:
-    "Discover verified commercial development sites across five European markets and reserve through a non-custodial Cardano workflow.",
+    "Explore verified commercial development sites across five European markets through an immersive cadastral map.",
   icons: {
     icon: "/xportal-logo.jpg",
     shortcut: "/xportal-logo.jpg",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "XPORTAL — Commercial Ground for What Comes Next",
     description:
-      "Verified commercial property discovery with transparent diligence and Cardano-enabled reservations.",
+      "Verified commercial property discovery with transparent diligence and spatial intelligence.",
     type: "website",
     images: [
       {

@@ -43,7 +43,6 @@ export default async function PropertyPage({ params, searchParams }: PropertyPag
         <dl>
           <div><dt>Asking price</dt><dd>{formatEuro(property.priceEurCents)}</dd></div>
           <div><dt>Parcel area</dt><dd>{property.areaSqm.toLocaleString()} m²</dd></div>
-          <div><dt>Reservation deposit</dt><dd>{formatEuro(property.depositEurCents)}</dd></div>
           <div><dt>Status</dt><dd>{property.status}</dd></div>
         </dl>
       </section>
@@ -70,9 +69,9 @@ export default async function PropertyPage({ params, searchParams }: PropertyPag
           <p className="section-label">B2B inquiry</p>
           <h2>Start a controlled reservation.</h2>
           <p>
-            Your inquiry opens a private status page. Payment access is enabled only
-            after business, sanctions and document checks. Cardano is used for the
-            reservation deposit on Preprod; XPORTAL never receives a seed phrase.
+            Your inquiry opens a private status page. The current pilot covers
+            discovery, qualification and legal review only. No payment method is
+            active in this version.
           </p>
         </div>
         <form action="/api/reservations" method="post" className="reservation-form">
