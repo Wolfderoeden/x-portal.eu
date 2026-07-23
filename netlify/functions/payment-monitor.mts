@@ -1,14 +1,10 @@
-import { getDatabase } from "@netlify/database";
-
-declare const Netlify: {
-  env: { get(name: string): string | undefined };
-};
+import { getDatabase } from "../../lib/database";
 
 type BlockfrostAmount = { unit: string; quantity: string };
 type BlockfrostOutput = { address: string; amount: BlockfrostAmount[] };
 
 const paymentMonitor = async () => {
-  const projectId = Netlify.env.get("BLOCKFROST_PREPROD_PROJECT_ID");
+  const projectId = process.env.BLOCKFROST_PREPROD_PROJECT_ID;
   if (!projectId) return;
   const db = getDatabase();
   await db.sql`

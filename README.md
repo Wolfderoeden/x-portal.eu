@@ -2,7 +2,7 @@
 
 B2B marketplace for verified commercial development sites in Ukraine, Poland,
 Slovakia, Hungary and Romania. The application runs on Next.js and Netlify,
-uses Netlify Database (PostgreSQL), private Netlify Blobs and a non-custodial
+uses provider-neutral PostgreSQL, private Netlify Blobs and a non-custodial
 Cardano Preprod reservation flow.
 
 ## Product boundaries
@@ -39,14 +39,17 @@ pnpm lint
 pnpm build
 ```
 
-Use `netlify dev` when testing Netlify Database, Blobs or scheduled functions
-locally. Migrations are stored in `netlify/database/migrations/` and are applied
-automatically during deploys.
+Use `netlify dev` when testing PostgreSQL, Blobs or scheduled functions locally.
+Migrations are stored in `netlify/database/migrations/` and the Netlify build
+runs `pnpm db:migrate` before compiling. The migration runner is a no-op until a
+database URL is configured.
 
 ## Required environment variables
 
 | Variable | Purpose |
 | --- | --- |
+| `DATABASE_URL` | Pooled PostgreSQL URL (Prisma Postgres or another provider) |
+| `SUPABASE_DATABASE_URL` | Optional fallback name used by Netlify's Supabase extension |
 | `ADMIN_PASSWORD` | Admin password |
 | `ADMIN_SESSION_SECRET` | HMAC signing secret for eight-hour sessions |
 | `ADMIN_TOTP_SECRET` | Base32 TOTP secret; when present, MFA is mandatory |

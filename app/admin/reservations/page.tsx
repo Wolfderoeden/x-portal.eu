@@ -1,4 +1,4 @@
-import { getDatabase } from "@netlify/database";
+import { getDatabase } from "@/lib/database";
 import AdminShell from "../../../components/admin-shell";
 import { requireAdmin } from "../../../lib/admin-auth";
 import { formatEuro } from "../../../lib/domain";

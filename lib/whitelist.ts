@@ -1,5 +1,5 @@
 import { getDeployStore, getStore } from "@netlify/blobs";
-import { getDatabase } from "@netlify/database";
+import { getDatabase } from "./database";
 
 export type WhitelistEntry = {
   id: string;
@@ -65,7 +65,7 @@ export async function listWhitelistEntries(): Promise<WhitelistEntry[]> {
       createdAt: String(row.created_at),
     })));
   } catch {
-    // The database is provisioned by Netlify on deploy. Legacy Blob leads remain readable.
+    // Legacy Blob leads remain readable while PostgreSQL is being connected.
   }
   try {
     const store = whitelistStore();

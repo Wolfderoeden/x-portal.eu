@@ -1,4 +1,4 @@
-import { getDatabase } from "@netlify/database";
+import { getDatabase } from "@/lib/database";
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "../../../../../lib/admin-auth";
 import { privateDocumentsStore } from "../../../../../lib/documents";

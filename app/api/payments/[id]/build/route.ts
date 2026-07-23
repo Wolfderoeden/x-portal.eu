@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { BlockfrostProvider, MeshTxBuilder, type UTxO } from "@meshsdk/core";
-import { getDatabase } from "@netlify/database";
+import { getDatabase } from "@/lib/database";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 

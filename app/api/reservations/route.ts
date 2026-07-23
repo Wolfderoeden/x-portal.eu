@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { getDatabase } from "@netlify/database";
+import { getDatabase } from "@/lib/database";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { writeAuditEvent } from "../../../lib/db";

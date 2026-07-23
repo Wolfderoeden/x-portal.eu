@@ -1,4 +1,4 @@
-import { getDatabase } from "@netlify/database";
+import { getDatabase } from "./database";
 import type { Property, Reservation } from "./domain";
 
 type PropertyRow = {
@@ -68,13 +68,13 @@ export async function listPublishedProperties(): Promise<Property[]> {
       AND verification_status = 'verified'
     ORDER BY status = 'available' DESC, updated_at DESC
   `;
-  return (rows as PropertyRow[]).map(mapProperty);
+  return (rows as unknown as PropertyRow[]).map(mapProperty);
 }
 
 export async function listAllProperties(): Promise<Property[]> {
   const db = getDatabase();
   const rows = await db.sql`SELECT * FROM properties ORDER BY updated_at DESC`;
-  return (rows as PropertyRow[]).map(mapProperty);
+  return (rows as unknown as PropertyRow[]).map(mapProperty);
 }
 
 export async function getPropertyBySlug(slug: string): Promise<Property | null> {
@@ -86,13 +86,13 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
       AND verification_status = 'verified'
     LIMIT 1
   `;
-  return rows[0] ? mapProperty(rows[0] as PropertyRow) : null;
+  return rows[0] ? mapProperty(rows[0] as unknown as PropertyRow) : null;
 }
 
 export async function getPropertyById(id: string): Promise<Property | null> {
   const db = getDatabase();
   const rows = await db.sql`SELECT * FROM properties WHERE id = ${id} LIMIT 1`;
-  return rows[0] ? mapProperty(rows[0] as PropertyRow) : null;
+  return rows[0] ? mapProperty(rows[0] as unknown as PropertyRow) : null;
 }
 
 export async function dashboardCounts() {
