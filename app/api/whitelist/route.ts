@@ -16,10 +16,13 @@ export async function POST(request: Request) {
     const fullName = String(formData.get("fullName") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim().toLowerCase();
     const country = String(formData.get("country") ?? "").trim();
+    const company = String(formData.get("company") ?? "").trim();
+    const locale = formData.get("locale") === "de" ? "de" : "en";
+    const basePath = locale === "de" ? "/de" : "/";
     const consent = formData.get("consent") === "yes";
     const website = String(formData.get("website") ?? "").trim();
 
-    if (website) return redirectTo("/?joined=1#whitelist");
+    if (website) return redirectTo(`${basePath}?joined=1#whitelist`);
 
     if (
       fullName.length < 2 ||
@@ -28,13 +31,14 @@ export async function POST(request: Request) {
       !EMAIL_PATTERN.test(email) ||
       country.length < 2 ||
       country.length > 80 ||
+      company.length > 160 ||
       !consent
     ) {
-      return redirectTo("/?error=1#whitelist");
+      return redirectTo(`${basePath}?error=1#whitelist`);
     }
 
-    await addWhitelistEntry({ fullName, email, country });
-    return redirectTo("/?joined=1#whitelist");
+    await addWhitelistEntry({ fullName, email, country, company });
+    return redirectTo(`${basePath}?joined=1#whitelist`);
   } catch {
     return redirectTo("/?error=1#whitelist");
   }

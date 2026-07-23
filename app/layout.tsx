@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,32 +15,32 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://x-portal.eu"),
-  title: "XPORTAL — The Private Gateway to Cardano DeFi",
+  title: "XPORTAL — Verified Commercial Property on Cardano",
   description:
-    "Join the XPORTAL founding whitelist for early access to a focused Cardano DeFi experience.",
+    "Discover verified commercial development sites across five European markets and reserve through a non-custodial Cardano workflow.",
   icons: {
     icon: "/xportal-logo.jpg",
     shortcut: "/xportal-logo.jpg",
   },
   openGraph: {
-    title: "XPORTAL — Cardano DeFi, Before the Crowd",
+    title: "XPORTAL — Commercial Ground for What Comes Next",
     description:
-      "Join the founding whitelist for launch intelligence, early product access and priority onboarding.",
+      "Verified commercial property discovery with transparent diligence and Cardano-enabled reservations.",
     type: "website",
     images: [
       {
-        url: "/og.png",
+        url: "/og-marketplace.png",
         width: 1536,
         height: 1024,
-        alt: "XPORTAL — The private gateway to Cardano DeFi",
+        alt: "XPORTAL commercial property marketplace",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "XPORTAL — Cardano DeFi, Before the Crowd",
-    description: "Join the founding XPORTAL whitelist.",
-    images: ["/og.png"],
+    title: "XPORTAL — Verified Commercial Property",
+    description: "Join the qualified buyer whitelist.",
+    images: ["/og-marketplace.png"],
   },
 };
 

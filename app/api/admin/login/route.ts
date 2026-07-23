@@ -1,28 +1,38 @@
 import { NextResponse } from "next/server";
 import {
   ADMIN_COOKIE,
-  adminSessionToken,
+  adminSessionMaxAge,
+  createAdminSession,
+  isMfaConfigured,
   validateAdminPassword,
+  validateTotp,
 } from "../../../../lib/admin-auth";
+
+function loginRedirect(error: string) {
+  return new NextResponse(null, {
+    status: 303,
+    headers: { Location: `/admin/login?error=${error}` },
+  });
+}
 
 export async function POST(request: Request) {
   const formData = await request.formData();
   const password = String(formData.get("password") ?? "");
-  const session = adminSessionToken();
+  const totp = String(formData.get("totp") ?? "");
+  const mfaConfigured = isMfaConfigured();
 
-  if (!session || !process.env.ADMIN_PASSWORD) {
-    return new NextResponse(null, {
-      status: 303,
-      headers: { Location: "/admin/login?error=config" },
-    });
+  if (!process.env.ADMIN_SESSION_SECRET || !process.env.ADMIN_PASSWORD) {
+    return loginRedirect("config");
   }
-
   if (!validateAdminPassword(password)) {
-    return new NextResponse(null, {
-      status: 303,
-      headers: { Location: "/admin/login?error=invalid" },
-    });
+    return loginRedirect("invalid");
   }
+  if (mfaConfigured && !validateTotp(totp)) {
+    return loginRedirect("mfa");
+  }
+
+  const session = createAdminSession("owner", mfaConfigured);
+  if (!session) return loginRedirect("config");
 
   const response = new NextResponse(null, {
     status: 303,
@@ -30,10 +40,10 @@ export async function POST(request: Request) {
   });
   response.cookies.set(ADMIN_COOKIE, session, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    path: "/admin",
-    maxAge: 60 * 60 * 12,
+    path: "/",
+    maxAge: adminSessionMaxAge(),
   });
   return response;
 }
