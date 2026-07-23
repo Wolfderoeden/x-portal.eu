@@ -1,3 +1,4 @@
 allowBuilds:
+  chacha-native: true
   sharp: true
   unrs-resolver: true
