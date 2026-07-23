@@ -1,6 +1,6 @@
 import Link from "next/link";
 import AdminShell from "../../components/admin-shell";
-import { isMfaConfigured, requireAdmin } from "../../lib/admin-auth";
+import { requireAdmin } from "../../lib/admin-auth";
 import { dashboardCounts, listAllProperties } from "../../lib/db";
 import { countryName, formatEuro } from "../../lib/domain";
 import { listWhitelistEntries } from "../../lib/whitelist";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   const session = await requireAdmin();
   const [counts, properties, leads] = await Promise.all([
-    dashboardCounts().catch(() => ({ properties: 0, reservations: 0, openPayments: 0, compliance: 0 })),
+    dashboardCounts().catch(() => ({ properties: 0, reservations: 0, compliance: 0 })),
     listAllProperties().catch(() => []),
     listWhitelistEntries(),
   ]);
@@ -22,15 +22,9 @@ export default async function AdminPage() {
           <div><p className="section-label">Private control centre</p><h1>Operations overview</h1></div>
           <Link href="/admin/properties/new" className="admin-primary-link">+ Add property</Link>
         </div>
-        {!isMfaConfigured() && (
-          <p className="admin-alert">
-            Security gate: password access is active, but MFA is not enrolled. Do not upload KYC or legal documents until ADMIN_TOTP_SECRET is configured.
-          </p>
-        )}
         <div className="metric-grid">
           <article><strong>{counts.properties}</strong><span>Properties</span></article>
           <article><strong>{counts.reservations}</strong><span>Reservations</span></article>
-          <article><strong>{counts.openPayments}</strong><span>Open payments</span></article>
           <article><strong>{counts.compliance}</strong><span>Open checks</span></article>
           <article><strong>{leads.length}</strong><span>Buyer leads</span></article>
         </div>
