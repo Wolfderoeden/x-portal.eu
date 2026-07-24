@@ -15,32 +15,32 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://x-portal.eu"),
-  title: "XPORTAL — Commercial Property Intelligence",
+  title: "XPORTAL — Verified Commercial Property Intelligence",
   description:
-    "Explore verified commercial development sites across five European markets through an immersive cadastral map.",
+    "Explore controlled commercial property records across five European markets through an immersive cadastral intelligence map.",
   icons: {
     icon: "/xportal-logo.jpg",
     shortcut: "/xportal-logo.jpg",
   },
   openGraph: {
-    title: "XPORTAL — Commercial Ground for What Comes Next",
+    title: "XPORTAL — Property Intelligence / Verified Data",
     description:
-      "Verified commercial property discovery with transparent diligence and spatial intelligence.",
+      "Backend-controlled property discovery with transparent due diligence, deterministic data fingerprints and explicit Cardano anchor status.",
     type: "website",
     images: [
       {
-        url: "/og-marketplace.png",
-        width: 1536,
-        height: 1024,
-        alt: "XPORTAL commercial property marketplace",
+        url: "/og-strategy.png",
+        width: 1254,
+        height: 1254,
+        alt: "XPORTAL property intelligence strategy map",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "XPORTAL — Verified Commercial Property",
-    description: "Join the qualified buyer whitelist.",
-    images: ["/og-marketplace.png"],
+    title: "XPORTAL — Property Intelligence / Verified Data",
+    description: "A controlled B2B property map with explicit integrity proofs.",
+    images: ["/og-strategy.png"],
   },
 };
 

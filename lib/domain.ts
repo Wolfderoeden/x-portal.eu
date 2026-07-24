@@ -25,6 +25,19 @@ export type GeoJsonGeometry = {
   coordinates: unknown[];
 };
 
+export type PropertyIntegrity = {
+  schema: "xportal.property.v1";
+  algorithm: "SHA-256";
+  fingerprint: string;
+  storedFingerprint: string | null;
+  recordMatches: boolean;
+  anchorStatus: "not-anchored" | "anchored-match" | "anchored-mismatch";
+  anchorNetwork: string | null;
+  anchorTxHash: string | null;
+  anchorSlot: number | null;
+  anchorRecordedAt: string | null;
+};
+
 export type Property = {
   id: string;
   slug: string;
@@ -57,6 +70,7 @@ export type Property = {
   published: boolean;
   createdAt: string;
   updatedAt: string;
+  integrity: PropertyIntegrity;
 };
 
 export type AdminRole = "owner" | "compliance" | "operations" | "viewer";

@@ -64,6 +64,60 @@ export default async function PropertyPage({ params, searchParams }: PropertyPag
           <div><dt>Risk notes</dt><dd>{property.riskNotes || "See country-specific legal and due-diligence file"}</dd></div>
         </dl>
       </section>
+      <section className="property-integrity">
+        <div>
+          <p className="section-label">Data integrity record</p>
+          <h2>
+            Verifiable data.
+            <br />
+            Explicit limits.
+          </h2>
+          <p>
+            The property record is canonicalised and hashed. A matching Cardano
+            anchor can prove that the published dataset has not changed; it
+            cannot by itself prove legal title, zoning or source accuracy.
+          </p>
+        </div>
+        <div className="integrity-console">
+          <div className="integrity-console-head">
+            <span>XPORTAL PROPERTY PROOF / {property.integrity.schema}</span>
+            <b className={`proof-${property.integrity.anchorStatus}`}>
+              {property.integrity.anchorStatus === "anchored-match"
+                ? "ON-CHAIN MATCH"
+                : property.integrity.anchorStatus === "anchored-mismatch"
+                  ? "HASH MISMATCH"
+                  : "NOT YET ANCHORED"}
+            </b>
+          </div>
+          <dl>
+            <div><dt>Algorithm</dt><dd>{property.integrity.algorithm}</dd></div>
+            <div>
+              <dt>Data fingerprint</dt>
+              <dd><code>{property.integrity.fingerprint}</code></dd>
+            </div>
+            <div>
+              <dt>Record match</dt>
+              <dd>{property.integrity.recordMatches ? "CURRENT DATASET MATCHES" : "REVIEW REQUIRED"}</dd>
+            </div>
+            <div>
+              <dt>Cardano network</dt>
+              <dd>{property.integrity.anchorNetwork ?? "NO ANCHOR RECORDED"}</dd>
+            </div>
+            <div>
+              <dt>Transaction</dt>
+              <dd><code>{property.integrity.anchorTxHash ?? "—"}</code></dd>
+            </div>
+            <div>
+              <dt>Anchor slot</dt>
+              <dd>{property.integrity.anchorSlot?.toLocaleString() ?? "—"}</dd>
+            </div>
+          </dl>
+          <p>
+            Integrity proof ≠ ownership proof. Consult the cadastral source,
+            legal file and country-specific transaction documents.
+          </p>
+        </div>
+      </section>
       <section className="reservation-section" id="reserve">
         <div>
           <p className="section-label">B2B inquiry</p>

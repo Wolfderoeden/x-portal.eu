@@ -36,13 +36,24 @@ export default async function AdminPage() {
           ) : (
             <div className="table-wrap">
               <table>
-                <thead><tr><th>Property</th><th>Market</th><th>Price</th><th>Verification</th><th>Status</th><th>Public</th></tr></thead>
+                <thead><tr><th>Property</th><th>Market</th><th>Price</th><th>Integrity</th><th>Verification</th><th>Status</th><th>Public</th></tr></thead>
                 <tbody>
                   {properties.map((property) => (
                     <tr key={property.id}>
                       <td>{property.titleEn}<br /><small>{property.cadastralReference}</small></td>
                       <td>{countryName(property.country)} / {property.municipality}</td>
                       <td>{formatEuro(property.priceEurCents)}</td>
+                      <td>
+                        <span className="status-pill">
+                          {property.integrity.anchorStatus === "anchored-match"
+                            ? "on-chain match"
+                            : property.integrity.anchorStatus === "anchored-mismatch"
+                              ? "hash mismatch"
+                              : "hash ready"}
+                        </span>
+                        <br />
+                        <small>{property.integrity.fingerprint.slice(0, 12)}…</small>
+                      </td>
                       <td><span className="status-pill">{property.verificationStatus}</span></td>
                       <td><span className="status-pill">{property.status}</span></td>
                       <td>{property.published ? "Yes" : "No"}</td>

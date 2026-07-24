@@ -1,43 +1,41 @@
 import { NextResponse } from "next/server";
-import { getDatabase } from "../../../../lib/database";
+import { listPublishedProperties } from "../../../../lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const db = getDatabase();
-    const rows = await db.sql`
-      SELECT
-        id, slug, title_en, country, region, municipality,
-        cadastral_reference, area_sqm, commercial_use, status,
-        geometry, cadastral_checked_at
-      FROM properties
-      WHERE published = TRUE
-        AND verification_status = 'verified'
-        AND status IN ('available', 'reserved')
-        AND geometry IS NOT NULL
-      ORDER BY updated_at DESC
-    `;
+    const properties = await listPublishedProperties();
 
     return NextResponse.json(
       {
         type: "FeatureCollection",
         status: "connected",
-        features: rows.map((row) => ({
+        features: properties.filter((property) => property.geometry).map((property) => ({
           type: "Feature",
-          id: String(row.id),
-          geometry: row.geometry,
+          id: property.id,
+          geometry: property.geometry,
           properties: {
-            slug: String(row.slug),
-            title: String(row.title_en),
-            country: String(row.country),
-            region: String(row.region),
-            municipality: String(row.municipality),
-            cadastralReference: String(row.cadastral_reference),
-            areaSqm: Number(row.area_sqm),
-            commercialUse: String(row.commercial_use),
-            status: String(row.status),
-            checkedAt: row.cadastral_checked_at ? String(row.cadastral_checked_at) : null,
+            slug: property.slug,
+            title: property.titleEn,
+            country: property.country,
+            region: property.region,
+            municipality: property.municipality,
+            cadastralReference: property.cadastralReference,
+            areaSqm: property.areaSqm,
+            commercialUse: property.commercialUse,
+            status: property.status,
+            checkedAt: property.cadastralCheckedAt,
+            integrity: {
+              algorithm: property.integrity.algorithm,
+              fingerprint: property.integrity.fingerprint,
+              recordMatches: property.integrity.recordMatches,
+              anchorStatus: property.integrity.anchorStatus,
+              anchorNetwork: property.integrity.anchorNetwork,
+              anchorTxHash: property.integrity.anchorTxHash,
+              anchorSlot: property.integrity.anchorSlot,
+              anchorRecordedAt: property.integrity.anchorRecordedAt,
+            },
           },
         })),
       },

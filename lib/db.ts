@@ -1,5 +1,6 @@
 import { getDatabase } from "./database";
 import type { Property, Reservation } from "./domain";
+import { buildPropertyIntegrity } from "./property-integrity";
 
 type PropertyRow = {
   id: string;
@@ -27,10 +28,16 @@ type PropertyRow = {
   published: boolean;
   created_at: string;
   updated_at: string;
+  data_fingerprint: string | null;
+  fingerprint_algorithm: string | null;
+  anchor_network: string | null;
+  anchor_tx_hash: string | null;
+  anchor_slot: string | number | null;
+  anchor_recorded_at: string | null;
 };
 
 function mapProperty(row: PropertyRow): Property {
-  return {
+  const property = {
     id: row.id,
     slug: row.slug,
     titleEn: row.title_en,
@@ -56,6 +63,19 @@ function mapProperty(row: PropertyRow): Property {
     published: row.published,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  } satisfies Omit<Property, "integrity">;
+
+  return {
+    ...property,
+    integrity: buildPropertyIntegrity({
+      ...property,
+      storedDataFingerprint: row.data_fingerprint,
+      fingerprintAlgorithm: row.fingerprint_algorithm,
+      anchorNetwork: row.anchor_network,
+      anchorTxHash: row.anchor_tx_hash,
+      anchorSlot: row.anchor_slot === null ? null : Number(row.anchor_slot),
+      anchorRecordedAt: row.anchor_recorded_at,
+    }),
   };
 }
 

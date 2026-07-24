@@ -34,7 +34,17 @@ const copy = {
     mapStatus: "Live spatial interface",
     mapHint: "Continue scrolling to descend to parcel level",
     prototype:
-      "Outlined preview zones demonstrate the interface only. Purchasable parcels appear after cadastral and legal verification.",
+      "The map never invents inventory. A parcel outline appears only after a verified backend record contains approved cadastral geometry and has been released for publication.",
+    integrityLabel: "Property integrity protocol",
+    integrityTitle: "A proof trail for every public parcel.",
+    integrityText:
+      "XPORTAL creates a deterministic SHA-256 fingerprint from the public property record. A future Cardano anchor can prove that the record has not changed since publication. It does not replace title, zoning or legal due diligence.",
+    integritySteps: [
+      ["01", "Official source", "Cadastral reference, source and boundary geometry are attached to the controlled record."],
+      ["02", "Legal release", "Only verified and approved available or reserved properties can enter the public feed."],
+      ["03", "Data fingerprint", "Commercial, cadastral and risk data is canonicalised and hashed with SHA-256."],
+      ["04", "Cardano anchor", "The interface shows an on-chain match only after a real transaction anchor exists and matches the current hash."],
+    ],
     noListings: "Verified inventory is being onboarded.",
     noListingsBody:
       "XPORTAL does not publish placeholder land as if it were for sale. Join the buyer list to receive verified commercial sites as they clear review.",
@@ -87,7 +97,17 @@ const copy = {
     mapStatus: "Räumliche Live-Oberfläche",
     mapHint: "Weiterscrollen bis auf Grundstücksebene",
     prototype:
-      "Die umrandeten Vorschauzonen demonstrieren nur die Oberfläche. Kaufbare Parzellen erscheinen erst nach Kataster- und Rechtsprüfung.",
+      "Die Karte erfindet keine Angebote. Ein Grundstücksumriss erscheint erst, wenn ein verifizierter Backend-Datensatz freigegebene Katastergeometrie enthält und zur Veröffentlichung freigegeben wurde.",
+    integrityLabel: "Property-Integrity-Protokoll",
+    integrityTitle: "Eine Beweiskette für jedes öffentliche Grundstück.",
+    integrityText:
+      "XPORTAL erzeugt einen deterministischen SHA-256-Fingerprint aus dem öffentlichen Grundstücksdatensatz. Ein späterer Cardano-Anker kann belegen, dass dieser Datensatz seit der Veröffentlichung nicht verändert wurde. Eigentums-, Widmungs- und Rechtsprüfung ersetzt er nicht.",
+    integritySteps: [
+      ["01", "Offizielle Quelle", "Katasterreferenz, Quelle und Grenzgeometrie werden dem kontrollierten Datensatz zugeordnet."],
+      ["02", "Rechtliche Freigabe", "Nur geprüfte und freigegebene verfügbare oder reservierte Grundstücke gelangen in den öffentlichen Feed."],
+      ["03", "Daten-Fingerprint", "Gewerbliche, katasterbezogene und risikorelevante Daten werden kanonisiert und mit SHA-256 gehasht."],
+      ["04", "Cardano-Anker", "Die Oberfläche zeigt einen On-Chain-Match erst, wenn ein echter Transaktionsanker existiert und zum aktuellen Hash passt."],
+    ],
     noListings: "Geprüfte Angebote werden derzeit aufgenommen.",
     noListingsBody:
       "XPORTAL veröffentlicht keine Platzhalter als vermeintliche Verkaufsangebote. Die Käuferliste informiert, sobald gewerbliche Grundstücke die Prüfung abgeschlossen haben.",
@@ -214,15 +234,8 @@ export default function LandingPage({
           />
 
           <div className="strategy-grid" aria-hidden="true" />
-          {properties.length === 0 && (
-            <div className="parcel-scan-overlay" aria-hidden="true">
-              <i className="scan-parcel scan-parcel-a"><span>PREVIEW / 01</span></i>
-              <i className="scan-parcel scan-parcel-b"><span>PREVIEW / 02</span></i>
-              <i className="scan-parcel scan-parcel-c"><span>PREVIEW / 03</span></i>
-              <i className="scan-parcel scan-parcel-d"><span>PREVIEW / 04</span></i>
-              <b className="scan-origin"><span>RAKHIV</span></b>
-            </div>
-          )}
+          <div className="strategy-vignette" aria-hidden="true" />
+          <div className="strategy-scanline" aria-hidden="true" />
 
           <div className="strategy-hud" aria-hidden={mapProgress < 0.18}>
             <div className="hud-top-left">
@@ -254,13 +267,13 @@ export default function LandingPage({
                 <b>05 NODES</b>
               </div>
               <ul>
-                <li><span>PL / GUGiK ULDK</span><b>API LIVE</b></li>
-                <li><span>RO / ANCPI INSPIRE</span><b>API LIVE</b></li>
-                <li><span>SK / ZBGIS</span><b>REVIEW</b></li>
-                <li><span>HU / E-ING</span><b>LICENSED</b></li>
-                <li><span>UA / STATE CADASTRE</span><b>REVIEW</b></li>
+                <li><span>PL / GUGiK ULDK</span><b>CONNECTED</b></li>
+                <li><span>RO / ANCPI INSPIRE</span><b>CONNECTED</b></li>
+                <li><span>SK / ZBGIS</span><b>SOURCE REVIEW</b></li>
+                <li><span>HU / E-ING</span><b>LICENSE GATE</b></li>
+                <li><span>UA / STATE CADASTRE</span><b>SOURCE REVIEW</b></li>
               </ul>
-              <span className="hud-network-index">DATA INDEX / API READY</span>
+              <span className="hud-network-index">PUBLIC PARCEL FEED / BACKEND CONTROLLED</span>
             </div>
           </div>
 
@@ -308,6 +321,27 @@ export default function LandingPage({
       <section className="terrain-note">
         <p className="section-label">{t.mapFocus}</p>
         <p>{t.prototype}</p>
+      </section>
+
+      <section className="integrity-section" aria-labelledby="integrity-title">
+        <div className="integrity-intro">
+          <p className="section-label">{t.integrityLabel}</p>
+          <h2 id="integrity-title">{t.integrityTitle}</h2>
+          <p>{t.integrityText}</p>
+        </div>
+        <div className="integrity-proof-rail">
+          {t.integritySteps.map(([number, title, text], index) => (
+            <article key={number}>
+              <div>
+                <span>{number}</span>
+                <i className={index < 3 ? "proof-ready" : "proof-pending"} />
+              </div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+              <b>{index < 3 ? "PROTOCOL READY" : "ANCHOR REQUIRED"}</b>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="listing-section" aria-labelledby="listing-title">

@@ -5,6 +5,7 @@ import { requireAdminApi } from "../../../../lib/admin-auth";
 import { getCadastreSource } from "../../../../lib/cadastre-knowledge";
 import { upsertCadastreRecord } from "../../../../lib/cadastre-store";
 import { writeAuditEvent } from "../../../../lib/db";
+import { computePropertyFingerprint } from "../../../../lib/property-integrity";
 
 const propertySchema = z.object({
   titleEn: z.string().min(4).max(160),
@@ -77,6 +78,27 @@ export async function POST(request: Request) {
     parsed.data.verificationStatus === "verified" &&
     ["available", "reserved"].includes(parsed.data.status);
   const slug = `${slugify(parsed.data.titleEn)}-${crypto.randomUUID().slice(0, 8)}`;
+  const dataFingerprint = computePropertyFingerprint({
+    country: parsed.data.country,
+    region: parsed.data.region,
+    municipality: parsed.data.municipality,
+    cadastralReference: parsed.data.cadastralReference,
+    cadastralSourceUrl: parsed.data.cadastralSourceUrl || null,
+    cadastralCheckedAt: parsed.data.cadastralCheckedAt || null,
+    geometry: geometry as {
+      type: "Polygon" | "MultiPolygon";
+      coordinates: unknown[];
+    },
+    areaSqm: parsed.data.areaSqm,
+    commercialUse: parsed.data.commercialUse,
+    developmentParameters: parsed.data.developmentParameters,
+    restrictions: parsed.data.restrictions,
+    utilities,
+    priceEurCents: Math.round(parsed.data.priceEur * 100),
+    priceSource: parsed.data.priceSource,
+    verificationStatus: parsed.data.verificationStatus,
+    riskNotes: parsed.data.riskNotes,
+  });
 
   try {
     const db = getDatabase();
@@ -106,7 +128,8 @@ export async function POST(request: Request) {
         cadastral_reference, cadastral_source_url, cadastral_checked_at,
         cadastre_record_id, geometry, area_sqm, commercial_use, development_parameters,
         restrictions, utilities, price_eur_cents, deposit_eur_cents,
-        price_source, verification_status, risk_notes, status, published
+        price_source, verification_status, risk_notes, status, published,
+        data_fingerprint, fingerprint_algorithm
       ) VALUES (
         ${slug}, ${parsed.data.titleEn}, ${parsed.data.titleDe}, ${parsed.data.country},
         ${parsed.data.region}, ${parsed.data.municipality},
@@ -118,7 +141,7 @@ export async function POST(request: Request) {
         ${JSON.stringify(utilities)}::jsonb, ${Math.round(parsed.data.priceEur * 100)},
         ${Math.round(parsed.data.depositEur * 100)}, ${parsed.data.priceSource},
         ${parsed.data.verificationStatus}, ${parsed.data.riskNotes},
-        ${parsed.data.status}, ${published}
+        ${parsed.data.status}, ${published}, ${dataFingerprint}, ${"SHA-256"}
       )
       RETURNING id, slug, status, verification_status, published
     `;
