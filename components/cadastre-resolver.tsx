@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import dynamic from "next/dynamic";
 import type { GeoJsonGeometry } from "../lib/domain";
-
-const MarketplaceMap = dynamic(() => import("./marketplace-map"), { ssr: false });
 
 type ResolverResponse = {
   status: "resolved" | "manual";
@@ -83,10 +80,6 @@ export default function CadastreResolver() {
             <a href={result.sourceUrl} target="_blank" rel="noreferrer">Open official source</a>
           )}
         </div>
-      )}
-
-      {result?.geometry && (
-        <MarketplaceMap compact properties={[]} previewGeometry={result.geometry} />
       )}
 
       <label>

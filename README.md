@@ -48,9 +48,6 @@ licensed parcel lookup contract is connected.
 
 | Endpoint | Access | Purpose |
 | --- | --- | --- |
-| `/api/geo/markets` | Public | Market nodes, map centres and integration status |
-| `/api/geo/cadastre` | Public | Official-source knowledge index and capabilities |
-| `/api/geo/parcels` | Public | GeoJSON for published, legally verified parcels only |
 | `/api/admin/cadastre/resolve` | Admin | Resolve Poland/Romania references and retain source evidence |
 | `/api/admin/cadastre/records` | Admin | Search normalized cadastral records |
 

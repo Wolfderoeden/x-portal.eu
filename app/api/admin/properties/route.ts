@@ -115,7 +115,7 @@ export async function POST(request: Request) {
       sourceUrl:
         parsed.data.cadastralSourceUrl ||
         cadastreSource?.portalUrl ||
-        "https://x-portal.eu/api/geo/cadastre",
+        "https://x-portal.eu/",
       checkedAt: parsed.data.cadastralCheckedAt || new Date().toISOString(),
       verificationStatus:
         parsed.data.verificationStatus === "verified" ? "verified" : "review",
