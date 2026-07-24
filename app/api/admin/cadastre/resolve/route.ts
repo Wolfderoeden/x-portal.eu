@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "../../../../../lib/admin-auth";
+import { getCadastreSource } from "../../../../../lib/cadastre-knowledge";
+import { upsertCadastreRecord } from "../../../../../lib/cadastre-store";
 import type { GeoJsonGeometry } from "../../../../../lib/domain";
 
 function splitGroups(value: string) {
@@ -105,8 +107,10 @@ export async function GET(request: Request) {
   }
 
   if (!["PL", "RO"].includes(country)) {
+    const source = getCadastreSource(country);
     return NextResponse.json({
       status: "manual",
+      source,
       message:
         "This market does not currently expose a reliable public parcel-by-reference API. Upload or paste official GeoJSON and record the source document.",
     });
@@ -116,11 +120,32 @@ export async function GET(request: Request) {
     const resolved = country === "PL"
       ? await resolvePoland(reference)
       : await resolveRomania(reference);
+    const checkedAt = new Date().toISOString();
+    let recordId: string | null = null;
+    let storage: "stored" | "pending" = "pending";
+    try {
+      recordId = await upsertCadastreRecord({
+        country,
+        reference,
+        geometry: resolved.geometry,
+        sourceUrl: resolved.sourceUrl,
+        checkedAt,
+        verificationStatus: "resolved",
+        createdBy: admin.sub,
+        sourcePayload: { resolver: country === "PL" ? "GUGiK ULDK" : "ANCPI INSPIRE" },
+      });
+      storage = "stored";
+    } catch {
+      // Geometry resolution remains useful when the optional datastore is not connected yet.
+    }
     return NextResponse.json({
       status: "resolved",
       geometry: resolved.geometry,
       sourceUrl: resolved.sourceUrl,
-      checkedAt: new Date().toISOString(),
+      checkedAt,
+      source: getCadastreSource(country),
+      recordId,
+      storage,
       message:
         "Boundary resolved from the official cadastral service. Legal identity, ownership and zoning still require document review.",
     });

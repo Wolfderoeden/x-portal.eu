@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  type WheelEvent as ReactWheelEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   LngLatBounds,
   Map,
@@ -24,6 +30,55 @@ type MarketplaceMapProps = {
 };
 
 const RAKHIV: [number, number] = [24.2099, 48.0524];
+const WORLD: [number, number] = [12, 18];
+const EUROPE: [number, number] = [18.8, 49.2];
+const UKRAINE: [number, number] = [29.4, 49.1];
+
+function smoothstep(value: number) {
+  const normalized = Math.min(1, Math.max(0, value));
+  return normalized * normalized * (3 - 2 * normalized);
+}
+
+function mix(from: number, to: number, progress: number) {
+  return from + (to - from) * progress;
+}
+
+function immersiveCamera(progress: number) {
+  if (progress <= 0.3) {
+    const stage = smoothstep(progress / 0.3);
+    return {
+      center: [
+        mix(WORLD[0], EUROPE[0], stage),
+        mix(WORLD[1], EUROPE[1], stage),
+      ] as [number, number],
+      zoom: mix(0.62, 3.15, stage),
+      pitch: mix(0, 9, stage),
+      bearing: mix(0, -6, stage),
+    };
+  }
+  if (progress <= 0.58) {
+    const stage = smoothstep((progress - 0.3) / 0.28);
+    return {
+      center: [
+        mix(EUROPE[0], UKRAINE[0], stage),
+        mix(EUROPE[1], UKRAINE[1], stage),
+      ] as [number, number],
+      zoom: mix(3.15, 5.25, stage),
+      pitch: mix(9, 20, stage),
+      bearing: mix(-6, -3, stage),
+    };
+  }
+  const stage = smoothstep((progress - 0.58) / 0.42);
+  return {
+    center: [
+      mix(UKRAINE[0], RAKHIV[0], stage),
+      mix(UKRAINE[1], RAKHIV[1], stage),
+    ] as [number, number],
+    zoom: mix(5.25, 13.1, stage),
+    pitch: mix(20, 48, stage),
+    bearing: mix(-3, 0, stage),
+  };
+}
 
 const DEMO_PARCELS = [
   {
@@ -119,18 +174,27 @@ export default function MarketplaceMap({
         pilot: country.pilot,
       },
     }));
+    const networkFeatures = MARKET_COUNTRIES.map((country) => ({
+      type: "Feature" as const,
+      geometry: {
+        type: "LineString" as const,
+        coordinates: [country.center, RAKHIV],
+      },
+      properties: { country: country.code },
+    }));
 
     const map = new Map({
       container: containerRef.current,
       style:
         process.env.NEXT_PUBLIC_MAP_STYLE_URL ??
         "https://tiles.openfreemap.org/styles/bright",
-      center: immersive ? [18.6, 49.2] : [21.5, 48.8],
-      zoom: immersive ? 2.55 : compact ? 5 : 4.2,
-      minZoom: immersive ? 2.3 : 3,
+      center: immersive ? WORLD : [21.5, 48.8],
+      zoom: immersive ? 0.62 : compact ? 5 : 4.2,
+      minZoom: immersive ? 0.35 : 3,
       maxZoom: 18,
-      pitch: immersive ? 14 : 0,
-      bearing: immersive ? -7 : 0,
+      pitch: 0,
+      bearing: 0,
+      renderWorldCopies: !immersive,
       canvasContextAttributes: { preserveDrawingBuffer: immersive },
       attributionControl: { compact: true },
     });
@@ -216,6 +280,35 @@ export default function MarketplaceMap({
         type: "geojson",
         data: { type: "FeatureCollection", features: marketFeatures },
       });
+      if (immersive) {
+        map.addSource("xportal-network", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: networkFeatures },
+        });
+        map.addLayer({
+          id: "market-link-halo",
+          type: "line",
+          source: "xportal-network",
+          maxzoom: 9,
+          paint: {
+            "line-color": "#ffffff",
+            "line-width": ["interpolate", ["linear"], ["zoom"], 0.5, 3, 7, 5],
+            "line-opacity": ["interpolate", ["linear"], ["zoom"], 0.5, 0.72, 8, 0.18],
+          },
+        });
+        map.addLayer({
+          id: "market-links",
+          type: "line",
+          source: "xportal-network",
+          maxzoom: 9,
+          paint: {
+            "line-color": "#080808",
+            "line-width": ["interpolate", ["linear"], ["zoom"], 0.5, 1, 7, 2],
+            "line-dasharray": [2, 2],
+            "line-opacity": ["interpolate", ["linear"], ["zoom"], 0.5, 0.9, 8, 0.3],
+          },
+        });
+      }
       map.addLayer({
         id: "market-points",
         type: "circle",
@@ -330,15 +423,7 @@ export default function MarketplaceMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!immersive || !map || !loaded) return;
-    const eased = 1 - Math.pow(1 - progress, 2.15);
-    const longitude = 18.6 + (RAKHIV[0] - 18.6) * eased;
-    const latitude = 49.2 + (RAKHIV[1] - 49.2) * eased;
-    map.jumpTo({
-      center: [longitude, latitude],
-      zoom: 2.55 + eased * 10.35,
-      pitch: 14 + eased * 34,
-      bearing: -7 + eased * 7,
-    });
+    map.jumpTo(immersiveCamera(progress));
   }, [immersive, loaded, progress]);
 
   function filterCountry(country: string) {
@@ -362,6 +447,12 @@ export default function MarketplaceMap({
 
   const hasDemoParcels = immersive && properties.every((property) => !property.geometry);
 
+  function routeWheelToCamera(event: ReactWheelEvent<HTMLDivElement>) {
+    if (!immersive || event.deltaY === 0) return;
+    event.preventDefault();
+    window.scrollBy({ top: event.deltaY, behavior: "auto" });
+  }
+
   return (
     <div
       className={[
@@ -369,6 +460,7 @@ export default function MarketplaceMap({
         compact ? "map-shell-compact" : "",
         immersive ? "map-shell-immersive" : "",
       ].filter(Boolean).join(" ")}
+      onWheelCapture={immersive ? routeWheelToCamera : undefined}
     >
       {!compact && !immersive && (
         <div className="map-filters" aria-label="Filter map by country">

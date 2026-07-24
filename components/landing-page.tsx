@@ -150,6 +150,14 @@ export default function LandingPage({
   const otherLanguage = language === "de" ? "/" : "/de";
   const heroProgress = clamp(sceneProgress / 0.34);
   const mapProgress = clamp((sceneProgress - 0.08) / 0.92);
+  const cameraStage =
+    mapProgress < 0.3
+      ? { level: "WORLD", focus: "GLOBAL MARKET NETWORK", detail: "05 MARKETS / 01 COMMAND LAYER" }
+      : mapProgress < 0.58
+        ? { level: "EUROPE", focus: "CENTRAL + EASTERN EUROPE", detail: "REGIONAL INTELLIGENCE" }
+        : mapProgress < 0.82
+          ? { level: "UKRAINE", focus: "RAKHIV RAION / UKRAINE", detail: "COUNTRY APPROACH" }
+          : { level: "PARCEL", focus: "RAKHIV / CADASTRAL GRID", detail: "48.0524 N / 24.2099 E" };
 
   useEffect(() => {
     let frame = 0;
@@ -219,14 +227,16 @@ export default function LandingPage({
           <div className="strategy-hud" aria-hidden={mapProgress < 0.18}>
             <div className="hud-top-left">
               <span>XPORTAL / {t.mapMode}</span>
-              <strong>{t.mapFocus}</strong>
+              <strong>{cameraStage.focus}</strong>
             </div>
             <div className="hud-top-right">
-              <span>48.0524° N</span>
-              <span>24.2099° E</span>
-              <b>RAKHIV</b>
+              <span>CAMERA / {cameraStage.level}</span>
+              <span>{Math.round(mapProgress * 100).toString().padStart(3, "0")}%</span>
+              <b>{cameraStage.detail}</b>
             </div>
             <div className="hud-side">
+              <span>WORLD</span>
+              <i />
               <span>EUROPE</span>
               <i />
               <span>UKRAINE</span>
@@ -237,6 +247,20 @@ export default function LandingPage({
               <span>{t.mapStatus}</span>
               <span>{t.mapHint}</span>
               <span>{Math.round(mapProgress * 100).toString().padStart(3, "0")} / 100</span>
+            </div>
+            <div className="hud-network">
+              <div>
+                <span>CADASTRAL NETWORK</span>
+                <b>05 NODES</b>
+              </div>
+              <ul>
+                <li><span>PL / GUGiK ULDK</span><b>API LIVE</b></li>
+                <li><span>RO / ANCPI INSPIRE</span><b>API LIVE</b></li>
+                <li><span>SK / ZBGIS</span><b>REVIEW</b></li>
+                <li><span>HU / E-ING</span><b>LICENSED</b></li>
+                <li><span>UA / STATE CADASTRE</span><b>REVIEW</b></li>
+              </ul>
+              <span className="hud-network-index">DATA INDEX / API READY</span>
             </div>
           </div>
 
