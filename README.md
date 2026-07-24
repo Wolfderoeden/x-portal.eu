@@ -17,12 +17,13 @@ private Netlify Blobs.
 
 ## Spatial experience
 
-The first four viewport heights form one reversible scroll sequence:
+The opening experience is one reversible five-stage command-map sequence:
 
 1. the XPORTAL landing page fills the viewport;
-2. scrolling forward scales the landing page away and reveals Europe;
-3. the camera centres on Rakhiv Raion in Ukraine;
-4. further scrolling descends to parcel level and reveals verified boundaries,
+2. scrolling forward scales the landing page away and reveals the entire world;
+3. connected market nodes converge on Central and Eastern Europe;
+4. the camera approaches Rakhiv Raion in Ukraine;
+5. further scrolling descends to parcel level and reveals verified boundaries,
    or labelled interface-preview zones when inventory is still empty.
 
 Scrolling upward reverses the same camera and landing-page transition. The map
@@ -43,6 +44,22 @@ ANCPI ArcGIS service for parcel-by-reference geometry. Ukraine, Hungary and
 Slovakia deliberately fall back to manually verified GeoJSON until a reliable,
 licensed parcel lookup contract is connected.
 
+## Geo and cadastral APIs
+
+| Endpoint | Access | Purpose |
+| --- | --- | --- |
+| `/api/geo/markets` | Public | Market nodes, map centres and integration status |
+| `/api/geo/cadastre` | Public | Official-source knowledge index and capabilities |
+| `/api/geo/parcels` | Public | GeoJSON for published, legally verified parcels only |
+| `/api/admin/cadastre/resolve` | Admin | Resolve Poland/Romania references and retain source evidence |
+| `/api/admin/cadastre/records` | Admin | Search normalized cadastral records |
+
+The public endpoints never return owners, buyer/KYC records, private documents
+or audit entries. `cadastre_sources` stores the controlled source catalogue and
+`cadastre_records` stores normalized references, reviewed geometries, source
+URLs and verification state. Property records link to a cadastral record rather
+than treating a drawn polygon as legal proof.
+
 ## Local validation
 
 ```bash
@@ -54,7 +71,8 @@ pnpm build
 Use `netlify dev` when testing PostgreSQL or private Blobs locally. Migrations
 are stored in `netlify/database/migrations/`; the Netlify build runs
 `pnpm db:migrate` before compiling and skips migration when no database URL is
-configured.
+configured. The installed Supabase extension still requires a one-time project
+connection before the production cadastral datastore becomes active.
 
 ## Required environment variables
 

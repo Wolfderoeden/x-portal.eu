@@ -20,7 +20,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   --map-progress: 0;
   overflow: clip;
 }
-.strategy-stage { height: 420svh; position: relative; background: #080808; }
+.strategy-stage { height: 500svh; position: relative; background: #080808; }
 .strategy-sticky { width: 100%; height: 100svh; position: sticky; top: 0; overflow: hidden; background: #080808; }
 .map-shell-immersive {
   position: absolute;
@@ -237,6 +237,48 @@ button, a { -webkit-tap-highlight-color: transparent; }
   border-top: 1px solid rgba(255,255,255,.5);
 }
 .hud-bottom span:nth-child(2) { color: #aaa; text-align: center; }
+.hud-network {
+  width: min(280px, calc(100vw - 48px));
+  position: absolute;
+  top: 118px;
+  left: 24px;
+  padding: 13px 15px;
+  border: 1px solid rgba(255,255,255,.42);
+  background: rgba(7,7,7,.78);
+  backdrop-filter: blur(9px);
+  opacity: clamp(0, calc((var(--map-progress) - .2) * 3.5), .96);
+}
+.hud-network > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.22);
+}
+.hud-network > div span { color: #aaa; }
+.hud-network > div b { font-size: 9px; font-weight: 550; }
+.hud-network ul { display: grid; gap: 8px; margin: 12px 0; padding: 0; list-style: none; }
+.hud-network li { display: flex; justify-content: space-between; gap: 14px; }
+.hud-network li span { color: #d2d2cc; letter-spacing: .08em; }
+.hud-network li b { color: white; font-size: 8px; font-weight: 550; }
+.hud-network li b::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  display: inline-block;
+  margin-right: 6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  vertical-align: 1px;
+}
+.hud-network-index {
+  display: block;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.22);
+  color: #8f8f8a;
+  font-size: 8px;
+}
 .immersive-map-legend {
   position: absolute;
   left: 24px;
@@ -546,7 +588,7 @@ td small { color: var(--muted); }
 }
 
 @media (max-width: 720px) {
-  .strategy-stage { height: 360svh; }
+  .strategy-stage { height: 430svh; }
   .gateway-hero { padding-bottom: 22px; }
   .hero-utility > div span { display: none; }
   .market-hero-copy h1 { font-size: clamp(60px, 20vw, 105px); }
@@ -560,6 +602,14 @@ td small { color: var(--muted); }
   .scan-parcel-d { width: 29vw; height: 16vh; top: 55%; left: 59%; }
   .hud-top-left { top: 16px; left: 16px; }
   .hud-top-right { display: none; }
+  .hud-network {
+    top: 83px;
+    left: 16px;
+    width: 210px;
+    padding: 10px 12px;
+  }
+  .hud-network ul, .hud-network-index { display: none; }
+  .hud-network > div { padding-bottom: 0; border-bottom: 0; }
   .hud-side { right: 20px; }
   .hud-bottom {
     right: 16px;

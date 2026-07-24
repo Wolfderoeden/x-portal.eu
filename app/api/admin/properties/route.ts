@@ -2,6 +2,8 @@ import { getDatabase } from "@/lib/database";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApi } from "../../../../lib/admin-auth";
+import { getCadastreSource } from "../../../../lib/cadastre-knowledge";
+import { upsertCadastreRecord } from "../../../../lib/cadastre-store";
 import { writeAuditEvent } from "../../../../lib/db";
 
 const propertySchema = z.object({
@@ -78,18 +80,39 @@ export async function POST(request: Request) {
 
   try {
     const db = getDatabase();
+    const cadastreSource = getCadastreSource(parsed.data.country);
+    const cadastreRecordId = await upsertCadastreRecord({
+      country: parsed.data.country,
+      reference: parsed.data.cadastralReference,
+      municipality: parsed.data.municipality,
+      geometry: geometry as {
+        type: "Polygon" | "MultiPolygon";
+        coordinates: unknown[];
+      },
+      areaSqm: parsed.data.areaSqm,
+      sourceUrl:
+        parsed.data.cadastralSourceUrl ||
+        cadastreSource?.portalUrl ||
+        "https://x-portal.eu/api/geo/cadastre",
+      checkedAt: parsed.data.cadastralCheckedAt || new Date().toISOString(),
+      verificationStatus:
+        parsed.data.verificationStatus === "verified" ? "verified" : "review",
+      createdBy: admin.sub,
+      sourcePayload: { entry: "admin.property" },
+    });
     const rows = await db.sql`
       INSERT INTO properties (
         slug, title_en, title_de, country, region, municipality,
         cadastral_reference, cadastral_source_url, cadastral_checked_at,
-        geometry, area_sqm, commercial_use, development_parameters,
+        cadastre_record_id, geometry, area_sqm, commercial_use, development_parameters,
         restrictions, utilities, price_eur_cents, deposit_eur_cents,
         price_source, verification_status, risk_notes, status, published
       ) VALUES (
         ${slug}, ${parsed.data.titleEn}, ${parsed.data.titleDe}, ${parsed.data.country},
         ${parsed.data.region}, ${parsed.data.municipality},
         ${parsed.data.cadastralReference}, ${parsed.data.cadastralSourceUrl || null},
-        ${parsed.data.cadastralCheckedAt || null}, ${JSON.stringify(geometry)}::jsonb,
+        ${parsed.data.cadastralCheckedAt || null}, ${cadastreRecordId},
+        ${JSON.stringify(geometry)}::jsonb,
         ${parsed.data.areaSqm}, ${parsed.data.commercialUse},
         ${parsed.data.developmentParameters}, ${parsed.data.restrictions},
         ${JSON.stringify(utilities)}::jsonb, ${Math.round(parsed.data.priceEur * 100)},
